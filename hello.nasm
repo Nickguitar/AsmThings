@@ -1,4 +1,4 @@
-;Nicholas Ferreira - 14/07/21
+;Nicholas Ferreira - 06/08/21
 global _start ;set entrypoint at label _start
 section .text
   _start:
