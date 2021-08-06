@@ -1,4 +1,4 @@
-;Nicholas Ferreira - 25/07/21
+;Nicholas Ferreira - 06/08/21
 ;Encrypt file passed via argv[1] with simple XOR
 global _start
 
