@@ -1,4 +1,4 @@
-;Nicholas Ferreira - 06/08/21
+;Nicholas Ferreira - 07/08/21
 ;Encrypt file passed via argv[1] with simple XOR
 global _start
 
@@ -64,7 +64,6 @@ TRUNC equ 	1001
 
 section .data
 	usage: db 'Usage: ./cipher [filename]', 0
-	mode: db 1 			;0=encrypt, 1=decrypt
 	error: db '[-] File not found',0
 ; ================ FUNCTIONS
 
@@ -78,7 +77,7 @@ section .text
 		mov rdi, [rbp+32]	;filepath
 		syscall
 		leave
-		ret			;result goes in rdi
+		ret					;result goes in rdi
 
 	_filesize:
 		push rbp
@@ -127,7 +126,7 @@ section .text
 		leave
 		ret
 
-	_magic:
+	_magic:					;encode/decode
 		push rbp
 		mov rbp, rsp
 		mov rax, [rbp+24]	;mem addr with file contents
@@ -136,17 +135,8 @@ section .text
 		push rax			;popped at the end
 
 	_encode:
-		mov rcx, mode
-		cmp byte [rcx], 0
-		jnz _decode			;0=encode, 1=decode
 		xor byte [rax], 0x73
 		xor byte [rax], 0x59
-		jmp _check
-	_decode:
-		xor byte [rax], 0x59
-		xor byte [rax], 0x73
-	_check:					;check if it's the end
-		inc rax
 		cmp rax, rbx		;current position is end?
 		jle _encode			;if not, goto next byte
 		pop rax				;retrieve addr
@@ -165,34 +155,34 @@ section .text
 ; ================ MAIN
 
 	_start:
-		pop rax			;argc
+		pop rax				;argc
 		cmp rax, 2
-		jl _usage		;if less than 2 argv
+		jl _usage			;if less than 2 argv
 
 		mov rax, [rsp+8]	;argv[1]
-		push rax		;save argv on stack
+		push rax			;save argv on stack
 		open rax, 0, 0		;path, flags (R/W), perm
-		cmp rax, 0		;fd
+		cmp rax, 0			;fd
 		jl _notfound		;if fd<0 then exit
-		push rax 		;save fd in stack
+		push rax 			;save fd in stack
 		filesize rax		;get "file" filesize = n
 		cmp rax, 0
-		jz _exit		;exit if filesize = 0
+		jz _exit			;exit if filesize = 0
 
-		push rax		;save filesize in stack
-		mmap rax		;maps n bytes
+		push rax			;save filesize in stack
+		mmap rax			;maps n bytes
 
 		mov rcx, [rsp]		;filesize
 		mov rbx, [rsp+8]	;fd
 		mov rdx, rax
-		push rdx		;pointer to allocated memory
+		push rdx			;pointer to allocated memory
 		read rbx, rax, rcx
-		mov r9, rax		;save number os bytes read
+		mov r9, rax			;save number os bytes read
 
 		mov rax, [rsp+24]	;argv[1]
 		open rax, 0x1001, 755o
-		push rax		;fd from open()
-		call _magic		;encode/decode
-		pop rbx			;fd
+		push rax			;fd from open()
+		call _magic			;encode/decode
+		pop rbx				;fd
 		write rbx, rax, r9
 		exit
