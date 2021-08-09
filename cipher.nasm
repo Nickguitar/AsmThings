@@ -137,6 +137,7 @@ section .text
 	_encode:
 		xor byte [rax], 0x73
 		xor byte [rax], 0x59
+		inc rax
 		cmp rax, rbx		;current position is end?
 		jle _encode			;if not, goto next byte
 		pop rax				;retrieve addr
