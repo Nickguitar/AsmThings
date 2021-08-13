@@ -9,11 +9,6 @@ WRITE equ	1
 ARGMAX equ	2097152		     	;$getconf -a | grep ARG_MAX
 
 ; ================ MARCOS
-%macro exit 0
-	mov rax, 60
-	mov rdi, 0
-	syscall
-%endmacro
 
 %macro read 3			    	;read fd, buf, count
 	push %1				;fd
