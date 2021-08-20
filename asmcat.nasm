@@ -13,39 +13,32 @@ global _start
 
 section .text
 	_start:
-		pop rbx 		;argc
-		pop rbx			;argv[0]
-
+		mov rdi, [rsp+16]	;argv[1]
 		mov rax, OPEN           ;open file and return descriptor
 		pop rdi			;argv[1]
 		mov rsi, 0		;read only
 		syscall
-		mov r8, rax		;store fd in r8
+		mov r15, rax		;store fd in r15
 
-		sub rsp, 114		;reserved for stat() return
 		mov rax, FSTAT          ;retrieve information about the opened file
-		mov rdi, r8		;fd (argv[1])
+		mov rdi, r15		;fd (argv[1])
+		sub rsp, 114		;reserved for stat() return
 		mov rsi, rsp		;statbuf
 		syscall
 		mov rbx, [rsp+48]	;the filesize will be at this position on stack
-					;is this shit even documented somewhere?
-					;I had to figure out by debugging stat()
-					;and seeing that the 48th byte holds te filesize
-
-		push r8			;store fd on stack
 
 		mov eax, MMAP           ;map memory to store file content
 		mov rdi, 0        	;addr
 		mov rsi, rbx		;length
 		mov rdx, 0x2      	;PROT_WRITE
-		mov r10, 33       	;MAP_SHARED|MAP_ANONYMOUS
+		mov r10, 0x21       	;MAP_SHARED|MAP_ANONYMOUS
 		mov r8, -1        	;fd (ignore)
 		mov r9, 0         	;offset (zero, because MAP_ANONYMOUS)
 		syscall
 		mov rcx, rax		;addr of mapped memory
 
 		mov rax, READ           ;read contents from file
-		pop rdi			;fd (from push r8)
+		mov rdi, r15		;fd (from push r8)
 		mov rsi, rcx		;buf
 		mov rdx, rbx		;count (size)
 		syscall
