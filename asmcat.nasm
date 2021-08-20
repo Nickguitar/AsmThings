@@ -1,6 +1,8 @@
 ;Nicholas Ferreira - 25/07/21
 ;./asmcat file
 ;prints the content of argv[1] on stdout
+;
+;Comentários em português: n.0x7359.com/?0x5
 
 %define READ	0
 %define WRITE	1
